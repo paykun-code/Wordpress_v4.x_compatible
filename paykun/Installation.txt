@@ -31,7 +31,7 @@ Note : Once you re-generate api key your old api key will stop working immediate
       * Merchant Id             - Staging/Production Merchant Id provided by Paykun
       * Access Token            - Staging/Production Access Token provided by Paykun
       * Encryption Key          - Staging/Production Encryption Key provided by Paykun
-      * Return Page             - My Account
+      * Return Page             - Checkout
       * Log (yes/no)            - For trouble shooting
 
   10. Your Woo-commerce plug-in is now installed. You can accept payment through Paykun.
