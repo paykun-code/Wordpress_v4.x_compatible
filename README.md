@@ -36,4 +36,4 @@ Note : Once you re-generate api key your old api key will stop working immediate
 
   10. Your Woo-commerce plug-in is now installed. You can accept payment through Paykun.
 
-#<h3> In case of any query, please contact to Paykun.</h3>
+#<h3> In case of any query, please contact to support@paykun.com.</h3>
