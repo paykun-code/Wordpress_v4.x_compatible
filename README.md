@@ -1,19 +1,19 @@
 # Wordpress 4.X Woo-Commerce compatible
 
-# How To Generate Access token and API Secret :
+# <h3>How To Generate Access token and API Secret :</h3>
 You can generate Or Regenerate Access token and API Secret from login into your paykun admin panel, Then Go To : Settings -> Security -> API Keys. There you will find the generate button if you have not generated api key before.
 
 If you have generated api key before then you will see the date of the api key generate, since you will not be able to retrieve the old api key (For security reasons) we have provided the re-generate option, so you can re-generate api key in case you have lost the old one.
 
 Note : Once you re-generate api key your old api key will stop working immediately. So be cautious while using this option.
 
-# Prerequisite
+# <h3>Prerequisite</h3>
     Merchant Id (Please read 'How To Generate Access token and API Secret :')
     Access Token (Please read 'How To Generate Access token and API Secret :')
     Encryption Key (Please read 'How To Generate Access token and API Secret :')
     Wordpress 4.x compatible Woo-Commerce version must be installed and other payment method working properly.
 
-# Installation
+# <h3>Installation</h3>
 
   1. Download the zip and extract it to the some temporary location
   2. Copy the folder named 'paykun' from the extracted zip into the directory location /wp-content/plugins/
@@ -36,4 +36,4 @@ Note : Once you re-generate api key your old api key will stop working immediate
 
   10. Your Woo-commerce plug-in is now installed. You can accept payment through Paykun.
 
-# In case of any query, please contact to Paykun.
+#<h3> In case of any query, please contact to Paykun.</h3>
