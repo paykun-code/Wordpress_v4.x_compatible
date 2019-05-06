@@ -51,7 +51,14 @@ function woocommerce_paykun_init() {
             //            $this -> transaction_status_url = $this -> settings['transaction_status_url'];
             $this -> redirect_page_id = $this -> settings['redirect_page_id'];
             // $this -> mode = $this -> settings['mode'];
-            $this -> callbackurl = $this -> settings['callbackurl'];
+            if(isset($this -> settings) && !empty($this -> settings)) {
+                if(isset($this -> settings['callbackurl'])) {
+                    $this -> callbackurl = $this -> settings['callbackurl'];
+                }
+            } else {
+                $this -> callbackurl = '';
+            }
+//            $this -> callbackurl = $this -> settings['callbackurl'];
             $this -> log = $this -> settings['log'];
 
             $this -> msg['message'] = "";
