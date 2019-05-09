@@ -245,7 +245,7 @@ function woocommerce_paykun_init() {
                                 $this->addLog("SUCCESS. Order Id => $order_id, Payment Id => $paymentId");
                                 $this -> msg['message'] = "Thank you for your order . 
                                 Your transaction has been successful.  
-                                Your  Order Id is => ".$order_id;
+                                Your  Order Id is => ".$order_id . " And Paykun Transaction Id => ".$paymentId;
                                 $this -> msg['class'] = 'success';
                                 $order -> add_order_note($this->msg['message']);
                                 $order -> update_status('processing');
