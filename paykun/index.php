@@ -1,12 +1,10 @@
 <?php
 /*
-Plugin Name: WooCommerce paykun gateway
+Plugin Name: PayKun Gateway (WooCommerce)
 Plugin URI: http://paykun.com/
-Description: paykun Payment Gateway with Check Status.
+Description: PayKun Payment Gateway with Check Status.
 Version: 0.2
 Author: Paykun
-
-
     License: GNU General Public License v3.0
     License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
