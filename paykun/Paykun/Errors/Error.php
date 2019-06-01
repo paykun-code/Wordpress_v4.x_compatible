@@ -1,6 +1,6 @@
 <?php
 
-
+namespace Paykun\Errors;
 class PkError extends \Exception
 {
     public function __construct($message, $code)

@@ -1,11 +1,8 @@
 <?php
 
-require_once "Errors/ErrorCodes.php";
-/**
- * Class Validator
- * @package Paykun\Checkout
- */
+namespace Paykun;
 
+use Paykun\Errors\ErrorCodes;
 class Validator {
 
     const ORDER_ID_MIN_LENGTH       = 10;

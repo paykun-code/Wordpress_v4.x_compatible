@@ -1,9 +1,6 @@
 <?php
 
-/**
- * Class ErrorCodes
- * @package Paykun\Checkout\Errors
- */
+namespace Paykun\Errors;
 class ErrorCodes {
 
     const INVALID_MERCHANT_ID_CODE      = 100;

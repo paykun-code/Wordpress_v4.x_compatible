@@ -1,6 +1,7 @@
 <?php
 
-require_once "Error.php";
+namespace Paykun\Errors;
+require_once 'Error.php';
 
 class ValidationException extends PkError
 {

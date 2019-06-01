@@ -1,10 +1,14 @@
 <?php
 
-require_once "Errors/Error.php";
-require_once "Validator.php";
-require_once "Errors/ErrorCodes.php";
-require_once "Crypto.php";
-require_once "Errors/ValidationException.php";
+namespace Paykun;
+
+require_once 'Validator.php';
+require_once 'Crypto.php';
+require_once 'Errors/ValidationException.php';
+require_once 'Errors/ErrorCodes.php';
+
+use Paykun\Errors\ErrorCodes;
+use Paykun\Errors\ValidationException;
 
 class Payment {
 
@@ -59,24 +63,23 @@ class Payment {
 
     public function __construct($mid, $accessToken, $encKey, $isLive = true, $isCustomTemplate = false) {
 
-        $this->log = new WC_Logger();
+        $this->log = new \WC_Logger();
 
         if (Validator::VALIDATE_MERCHANT_ID($mid)) {
 
             $this->addLog( "Merchant Id is missing : ");
-
             throw new ValidationException(ErrorCodes::INVALID_MERCHANT_ID_STRING,
                 ErrorCodes::INVALID_MERCHANT_ID_CODE, null);
         }
 
-        if (Validator::VALIDATE_ACCESS_TOKEN($accessToken)) {
+        if (\Paykun\Validator::VALIDATE_ACCESS_TOKEN($accessToken)) {
 
             $this->addLog( "Access Token is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_ACCESS_TOKEN_STRING,
                 ErrorCodes::INVALID_ACCESS_TOKEN_CODE, null);
         }
 
-        if (Validator::VALIDATE_ENCRYPTION_KEY($encKey)) {
+        if (\Paykun\Validator::VALIDATE_ENCRYPTION_KEY($encKey)) {
 
             $this->addLog( "Access Token is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_API_SECRETE_STRING,
@@ -119,34 +122,34 @@ class Payment {
 
     public function initOrder ($orderId, $purpose, $amount, $successUrl, $failureUrl) {
 
-        if (Validator::VALIDATE_ORDER_NUMBER($orderId)) {
+        if (\Paykun\Validator::VALIDATE_ORDER_NUMBER($orderId)) {
             $this->addLog( "Order Id is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_ORDER_ID_STRING,
                 ErrorCodes::INVALID_ORDER_ID_CODE, null);
         }
 
-        if (Validator::VALIDATE_PURPOSE($purpose)) {
+        if (\Paykun\Validator::VALIDATE_PURPOSE($purpose)) {
 
             $this->addLog( "Order Purpose is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_PURPOSE_STRING,
                 ErrorCodes::INVALID_PURPOSE_CODE, null);
         }
 
-        if (Validator::VALIDATE_AMOUNT($amount)) {
+        if (\Paykun\Validator::VALIDATE_AMOUNT($amount)) {
 
             $this->addLog( "Amount is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_AMOUNT_STRING,
                 ErrorCodes::INVALID_AMOUNT_CODE, null);
         }
 
-        if (Validator::VALIDATE_URL($successUrl)) {
+        if (\Paykun\Validator::VALIDATE_URL($successUrl)) {
 
             $this->addLog("Success Url is missing : " . $successUrl);
             throw new ValidationException(ErrorCodes::INVALID_SUCCESS_URL_STRING,
                 ErrorCodes::INVALID_SUCCESS_URL_CODE, null);
         }
 
-        if (Validator::VALIDATE_URL($failureUrl)) {
+        if (\Paykun\Validator::VALIDATE_URL($failureUrl)) {
 
             $this->addLog("Failed Url is missing : " . $failureUrl);
             throw new ValidationException(ErrorCodes::INVALID_FAIL_URL_STRING,
@@ -174,21 +177,6 @@ class Payment {
 
     public function addCustomer($customerName, $customerEmail, $customerMoNo) {
 
-        /*if(Validator::VALIDATE_CUSTOMER_NAME($customerName)) {
-            $errorDetail = Validator::VALIDATE_CUSTOMER_NAME($customerName);
-            throw new ValidationException($errorDetail["message"], $errorDetail["code"], null);
-        }
-
-        if(Validator::VALIDATE_CUSTOMER_EMAIL($customerEmail)) {
-            $errorDetail = Validator::VALIDATE_CUSTOMER_EMAIL($customerEmail);
-            throw new ValidationException($errorDetail["message"], $errorDetail["code"], null);
-        }
-
-        if (Validator::VALIDATE_MOBILE_NO($customerMoNo)) {
-            throw new ValidationException(ErrorCodes::INVALID_MOBILE_NO_STRING,
-                ErrorCodes::INVALID_MOBILE_NO_CODE, null);
-        }*/
-
         $this->customerName     = $customerName;
         $this->customerEmail    = $customerEmail;
         $this->customerMoNo     = $customerMoNo;
@@ -208,30 +196,6 @@ class Payment {
 
     public function addShippingAddress($country, $state, $city, $pinCode, $addressString) {
         $errorPrefix = "Shipping ";
-        /*if(! Validator::VALIDATE_COMMON_FIELD($country)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_COUNTRY_NAME_STRING,
-                ErrorCodes::INVALID_COUNTRY_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_COMMON_FIELD($state)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_STATE_NAME_STRING,
-                ErrorCodes::INVALID_STATE_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_COMMON_FIELD($city)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_CITY_NAME_STRING,
-                ErrorCodes::INVALID_CITY_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_PINCODE($pinCode)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_POSTAL_CODE_STRING,
-                ErrorCodes::INVALID_POSTAL_CODE_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_ADDRESS_FIELD($addressString)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_ADDRESS_STRING,
-                ErrorCodes::INVALID_ADDRESS_CODE, null);
-        }*/
 
         $this->country          = $country;
         $this->state            = $state;
@@ -255,30 +219,6 @@ class Payment {
     public function addBillingAddress($country, $state, $city, $pinCode, $addressString) {
 
         $errorPrefix = "Billing ";
-        /*if(! Validator::VALIDATE_COMMON_FIELD($country)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_COUNTRY_NAME_STRING,
-                ErrorCodes::INVALID_COUNTRY_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_COMMON_FIELD($state)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_STATE_NAME_STRING,
-                ErrorCodes::INVALID_STATE_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_COMMON_FIELD($city)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_CITY_NAME_STRING,
-                ErrorCodes::INVALID_CITY_NAME_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_PINCODE($pinCode)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_POSTAL_CODE_STRING,
-                ErrorCodes::INVALID_POSTAL_CODE_CODE, null);
-        }
-
-        if(! Validator::VALIDATE_ADDRESS_FIELD($addressString)) {
-            throw new ValidationException($errorPrefix . ErrorCodes::INVALID_ADDRESS_STRING,
-                ErrorCodes::INVALID_ADDRESS_CODE, null);
-        }*/
 
         $this->billingCountry   = $country;
         $this->billingState     = $state;
@@ -382,7 +322,7 @@ class Payment {
         $dataToPostToPG = substr($dataToPostToPG, 0, -1);
         // Encrypting String
 
-        return Crypto::encrypt($dataToPostToPG, $this->encryptionKey);
+        return \Paykun\Crypto::encrypt($dataToPostToPG, $this->encryptionKey);
 
     }
 
@@ -440,59 +380,50 @@ class Payment {
      * @return string
      * This function will be used by non-composer users, as they are not using twig or other template parser
      */
-    public function prepareCustomFormTemplate ($formData, $url, $loader) {
+    public function prepareCustomFormTemplate ($formData) {
 
-        $htmlEntity = '
-            <form  action="'.$formData["gateway_url"].'" method="post" name="server_request" target="_top" >
-                <table width="80%" align="center" border="0" cellpadding="0" cellspacing="0">
+        $htmlEntity = ('
+            <form  action="'.esc_url_raw($formData["gateway_url"]).'" method="post" name="server_request" target="_top" >
+                <table width="80%" align="center" border="0" cellpadding="0" cellspacing="0" style="display: none">
                     <tr>
-                        <td><input type="hidden" name="encrypted_request" id="encrypted_request" value="'.$formData['encrypted_request'].'" /></td>
+                        <td><input type="hidden" name="encrypted_request" id="encrypted_request" value="'.sanitize_text_field($formData['encrypted_request']).'" /></td>
                     </tr>
                     <tr>
-                        <td><input type="hidden" name="merchant_id" id="merchant_id" value="'.$formData['merchant_id'].'" /></td>
+                        <td><input type="hidden" name="merchant_id" id="merchant_id" value="'.sanitize_text_field($formData['merchant_id']).'" /></td>
                     </tr>
                     <tr>
-                        <td><input type="hidden" name="access_token" id="access_token" value="'.$formData['access_token'].'"></td>
+                        <td><input type="hidden" name="access_token" id="access_token" value="'.sanitize_text_field($formData['access_token']).'"></td>
                     </tr>
                 </table>
-                <input type="submit" class="button-alt" id="submit_paykun_payment_form" value="'.__('Pay via Paykun').'" /> 
-                <a class="button cancel" href="'.$url.'">'.__('Cancel order &amp; restore cart').'</a>
             </form>
-            <script type="text/javascript">
-jQuery(function(){
-    jQuery("body").block(
-            {
-                message: "'.__('Thank you for your order. We are now redirecting you to Paykun to make payment.').'",
-                    overlayCSS:
-				{
-					background: "#fff",
-                    opacity: 0.6
-				},
-			css: {
-				padding:        20,
-                textAlign:      "center",
-                color:          "#555",
-                border:         "3px solid #aaa",
-                backgroundColor:"#fff",
-                cursor:         "wait",
-                lineHeight:"32px"
-			}
-        });
-        jQuery("#submit_paykun_payment_form").click();
-        });
-                    </script>
-        ';
-        return $htmlEntity;
-    }
-
-    public function getCallbackUrl($isFailed = false){
-        $callback_url = "index.php?route=extension/payment/paykun/callbackSuccess";
-
-        if($isFailed === true) {
-            $callback_url = "index.php?route=extension/payment/paykun/callbackFailed";
-        }
-
-        return $_SERVER['HTTPS']? HTTPS_CATALOG . $callback_url : HTTP_CATALOG . $callback_url;
+        ');
+        $script = ('
+        <script type="text/javascript">
+                jQuery(function(){
+                    if(typeof  jQuery("body").block != "undefined") {
+                        jQuery("body").block(
+                            {
+                                message: "'.__('Thank you for your order. We are now redirecting you to Paykun to make payment.').'",
+                                    overlayCSS:
+                                {
+                                    background: "#fff",
+                                    opacity: 0.6
+                                },
+                            css: {
+                                padding:        20,
+                                textAlign:      "center",
+                                color:          "#555",
+                                border:         "3px solid #aaa",
+                                backgroundColor:"#fff",
+                                cursor:         "wait",
+                                lineHeight:"32px"
+                            }
+                        });
+                    }
+                    window.document.server_request.submit();
+                });
+            </script>');
+        return $htmlEntity.$script;
     }
 }
 
