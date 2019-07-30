@@ -76,7 +76,7 @@ function woocommerce_paykun_payment_gateway_init() {
                 add_action( 'woocommerce_update_options_payment_gateways', array( &$this, 'process_admin_options' ) );
             }
             add_action('woocommerce_receipt_paykun', array(&$this, 'receipt_page'));
-            add_action('woocommerce_thankyou_paykun',array(&$this, 'thankyou_page'));
+            //add_action('woocommerce_thankyou_paykun',array(&$this, 'thankyou_page'));
         }
 
 
@@ -206,6 +206,7 @@ function woocommerce_paykun_payment_gateway_init() {
         function check_paykun_response() {
 
             global $woocommerce;
+            $orderDetail = null;
             $paymentId = sanitize_text_field($_REQUEST['payment-id']);
             if(trim($paymentId) && strlen(trim($paymentId)) > 0){
 
@@ -219,7 +220,7 @@ function woocommerce_paykun_payment_gateway_init() {
                     } else {
                         $order = new woocommerce_order($order_id);
                     }
-
+                    $orderDetail = $order;
                     $this->addLog("Response Code = " . $payment_status);
 
 
@@ -230,7 +231,8 @@ function woocommerce_paykun_payment_gateway_init() {
                     //if(1) { //Transaction is success
 
                         $resAmout = $response['data']['transaction']['order']['gross_amount'];
-                        if(($order->order_total	== $resAmout)) {
+                        $this->addLog("amount matching responseAmount=".$resAmout." And  Order Amount = ".$order->order_total);
+                        if((intval($order->order_total)	== intval($resAmout) )) {
 
                             $this->addLog("amount matched");
 
@@ -275,9 +277,9 @@ function woocommerce_paykun_payment_gateway_init() {
                 add_action('the_content', array(&$this, 'paykunShowMessage'));
                 $redirect_url = ($this->redirect_page_id == "" || $this->redirect_page_id==0) ? get_site_url() . "/" : get_permalink($this->redirect_page_id);
                 //For wooCoomerce 2.0
-                $redirect_url = add_query_arg( array('msg'=> urlencode($this->msg['message']), 'type'=>$this->msg['class']), $redirect_url );
-
-                wp_redirect( $redirect_url );
+                //$redirect_url = add_query_arg( array('msg'=> urlencode($this->msg['message']), 'type'=>$this->msg['class']), $redirect_url );
+                $redirectUrl = $this->get_return_url($orderDetail);
+                wp_redirect( $redirectUrl );
             }
         }
 
