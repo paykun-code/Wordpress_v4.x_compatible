@@ -3,7 +3,7 @@
 * Plugin Name: PayKun Gateway (WooCommerce)
 * Plugin URI: https://github.com/paykun-code/Wordpress_v4.x_compatible
 * Description: PayKun payment integration for WooCommerce
-* Version: 0.2
+* Version: 1.6
 * Author: Paykun
 * Author URI: http://paykun.com/
 * Tags: PayKun, PayKun Payments, PayWithPayKun, PayKun WooCommerce, PayKun Plugin, PayKun Payment Gateway For WooCommerce
@@ -38,10 +38,12 @@ function woocommerce_paykun_payment_gateway_init() {
     class WC_paykunWooCom extends WC_Payment_Gateway {
         protected $msg = array();
         public function __construct() {  // construct form //
+
             // Go wild in here
-            $this->id = 'paykun';
+            $this->id = 'paykun-gateway-woocommerce';
             $this->method_title = __('Paykun');
             $this->icon = esc_url(plugins_url( 'images/paykun-logo.svg', __FILE__));
+
             $this->has_fields = false;
             $this->init_form_fields();
             $this->init_settings();
@@ -50,7 +52,7 @@ function woocommerce_paykun_payment_gateway_init() {
             $this->merchantIdentifier = $this->settings['merchantIdentifier'];
             $this->access_token = html_entity_decode($this->settings['access_token']);
             $this->encryption_key = $this->settings['encryption_key'];
-
+            $this->isLive = ($this->settings['paykun_payment_mode'] == 1) ? true: false;
             $this->redirect_page_id = $this->settings['redirect_page_id'];
             // $this->mode = $this->settings['mode'];
             if(isset($this->settings) && !empty($this->settings)) {
@@ -67,16 +69,22 @@ function woocommerce_paykun_payment_gateway_init() {
             $this->msg['class'] = "";
 
             add_action('init', array(&$this, 'check_paykun_response'));
+
             //update for woocommerce >2.0
-            add_action( 'woocommerce_api_' . strtolower( get_class( $this ) ), array( $this, 'check_paykun_response' ) );
-            add_action('valid-paykun-request', array(&$this, 'successful_request')); // this save
+            add_action( 'woocommerce_api_'.$this->id , array( $this, 'check_paykun_response' ) );
+            add_action('valid-paykun-request', array(&$this, 'successful_request'));
+
             if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
+
                 add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( &$this, 'process_admin_options' ) );
             } else {
+
                 add_action( 'woocommerce_update_options_payment_gateways', array( &$this, 'process_admin_options' ) );
             }
-            add_action('woocommerce_receipt_paykun', array(&$this, 'receipt_page'));
-            //add_action('woocommerce_thankyou_paykun',array(&$this, 'thankyou_page'));
+
+            add_action('woocommerce_receipt_'.$this->id, array(&$this, 'receipt_page'));
+            //add_action('woocommerce_thankyou_'.$this->id, array(&$this, 'thankyou_page'));
+
         }
 
 
@@ -88,11 +96,18 @@ function woocommerce_paykun_payment_gateway_init() {
                     'type' => 'checkbox',
                     'label' => __('Enable paykun Payment Module.'),
                     'default' => 'no'),
+                'paykun_payment_mode' => array(
+                    'title' => __('Is live?'),
+                    'type' => 'select',
+                    'options' => array('1' => 'Live', '0' => 'Sandbox'),
+                    'description' => "Live = Real time, Sandbox = Testing",
+                    'default' => '1'
+                ),
                 'title' => array(
                     'title' => __('Title:'),
                     'type'=> 'text',
                     'description' => __('This controls the title which the user sees during checkout.'),
-                    'default' => __('paykun')),
+                    'default' => __('PayKun')),
                 'description' => array(
                     'title' => __('Description:'),
                     'type' => 'textarea',
@@ -107,12 +122,12 @@ function woocommerce_paykun_payment_gateway_init() {
                 'access_token' => array(
                     'title' => __('Access Token'),
                     'type' => 'text',
-                    'description' =>  __('Given to Merchant by paykun'),
+                    'description' =>  __('Given to Merchant by PayKun'),
                 ),
                 'encryption_key' => array(
                     'title' => __('Encryption Key'),
                     'type' => 'text',
-                    'description' =>  __('Given to Merchant by paykun'),
+                    'description' =>  __('Given to Merchant by PayKun'),
                 ),
                 'redirect_page_id' => array(
                     'title' => __('Return Page'),
@@ -124,7 +139,8 @@ function woocommerce_paykun_payment_gateway_init() {
                     'title' => __('Do you want to log'),
                     'type' => 'text',
                     'options' => 'text',
-                    'description' => "(yes/no)"
+                    'description' => "(yes/no)",
+                    'default' => 'yes',
                 )
             );
 
@@ -208,6 +224,7 @@ function woocommerce_paykun_payment_gateway_init() {
             global $woocommerce;
             $orderDetail = null;
             $paymentId = sanitize_text_field($_REQUEST['payment-id']);
+
             if(trim($paymentId) && strlen(trim($paymentId)) > 0){
 
                 $response = $this->getTransactionInfo($paymentId);
@@ -215,6 +232,7 @@ function woocommerce_paykun_payment_gateway_init() {
                 if(isset($response['status']) && $response['status'] == "1" || $response['status'] == 1 ) {
                     $payment_status = $response['data']['transaction']['status'];
                     $order_id = $response['data']['transaction']['custom_field_1'];
+                    echo $order_id. '====';
                     if ( version_compare( WOOCOMMERCE_VERSION, '2.0.0', '>=' ) ) {
                         $order = new WC_Order($order_id);
                     } else {
@@ -228,11 +246,11 @@ function woocommerce_paykun_payment_gateway_init() {
                     $this->msg['message'] = "Thank you for shopping with us. However, the transaction has been Failed For Reason  : Payment Cancelled by customer";
 
                     if($payment_status === "Success") { //Transaction is success
-                    //if(1) { //Transaction is success
+                        //if(1) { //Transaction is success
 
                         $resAmout = $response['data']['transaction']['order']['gross_amount'];
                         $this->addLog("amount matching responseAmount=".$resAmout." And  Order Amount = ".$order->order_total);
-                        if((intval($order->order_total)	== intval($resAmout) )) {
+                        if((intval($order->order_total)	== intval($resAmout))) {
 
                             $this->addLog("amount matched");
 
@@ -259,13 +277,14 @@ function woocommerce_paykun_payment_gateway_init() {
                             $this->msg['class'] = 'error';
                             $this->msg['message'] = "Order Mismatch Occur with Payment Id = $paymentId. Please try again. order status changed to 'failed'";
                             $order -> update_status('failed');
-                            $this->addLog($this->msg['message']);
+                            $this->addLog($this->msg['message']. ' , With orderId = '.$order_id);
                             $order -> add_order_note('Failed');
                             $order -> add_order_note($this->msg['message']);
                         }
                     }
                     else { //Transaction failed
-
+                        $resAmout = $response['data']['transaction']['order']['gross_amount'];
+                        $this->addLog("Transaction Failed:=> amount matching responseAmount=".$resAmout." And  Order Amount = ".$order->order_total);
                         $this->addLog($this->msg['message']);
                         $order -> update_status('failed');
                         $order -> add_order_note('Failed');
@@ -288,12 +307,17 @@ function woocommerce_paykun_payment_gateway_init() {
 
             try {
 
-                $request = wp_remote_get('https://api.paykun.com/v1/merchant/transaction/' . $iTransactionId . '/', array(
-                            'headers' => array(
-                            'MerchantId' => $this->merchantIdentifier,
-                                'AccessToken' => $this->access_token
-                            ),
+                $apiUrl = ($this->isLive == true) ? 'https://api.paykun.com/v1/merchant/transaction/' : 'https://sandbox.paykun.com/api/v1/merchant/transaction/';
+
+                $request = wp_remote_get( $apiUrl. $iTransactionId . '/', array(
+                    'headers' => array(
+                        'MerchantId' => $this->merchantIdentifier,
+                        'AccessToken' => $this->access_token
+                    ),
                 ));
+
+                /*echo "<pre>";
+                print_r($request);exit;*/
 
                 $body = wp_remote_retrieve_body( $request );
                 $res = json_decode($body, true);
@@ -332,15 +356,17 @@ function woocommerce_paykun_payment_gateway_init() {
                 $order = new woocommerce_order($order_id);
             }
 
-            $redirect_url = ($this->redirect_page_id == "" || $this->redirect_page_id == 0) ? get_site_url() . "/" : get_permalink($this->redirect_page_id);
+            $redirect_url = get_site_url(). '/wc-api/' . $this->id;
+            //echo $redirect_url;exit;
+            //($this->redirect_page_id == "" || $this->redirect_page_id == 0) ? get_site_url() . "/" : get_permalink($this->redirect_page_id);
 
             // pretty url check //
-            $a = strstr($redirect_url, "?");
+            /*$a = strstr($redirect_url, "?");
             if ($a) {
                 $redirect_url .= "&wc-api=WC_paykunWooCom";
             } else {
                 $redirect_url .= "?wc-api=WC_paykunWooCom";
-            }
+            }*/
             $this->addLog("redirect url = this $redirect_url");
 
             if ($this->callbackurl == 'yes') {
@@ -386,8 +412,9 @@ function woocommerce_paykun_payment_gateway_init() {
                     ", purpose=>".$orderDetail['purpose'].
                     ", amount=> ".$orderDetail['amount']
                 );
+
                 require_once 'Paykun/Payment.php';
-                $obj = new \Paykun\Payment($orderDetail['merchantId'], $orderDetail['accessToken'], $orderDetail['encKey'], true, true);
+                $obj = new \Paykun\Payment($orderDetail['merchantId'], $orderDetail['accessToken'], $orderDetail['encKey'], $this->isLive, true);
 
                 // Initializing Order
                 $obj->initOrder($orderDetail['orderId'], $orderDetail['purpose'], $orderDetail['amount'],

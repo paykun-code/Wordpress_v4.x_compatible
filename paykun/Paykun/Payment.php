@@ -231,15 +231,21 @@ class Payment {
 
     public function setCustomFields($fields = null) {
 
-        if($fields !== null) {
-            $refl = new \ReflectionClass($this);
-            foreach ($fields as $key => $value) {
-
-                $property = $refl->getProperty($key);
-
-                if ($property instanceof ReflectionProperty) {
-                    $property->setValue($this, $value);
-                }
+        if($fields != null) {
+            if(isset($fields['udf_1'])) {
+                $this->udf_1 = $fields['udf_1'];
+            }
+            if(isset($fields['udf_2'])) {
+                $this->udf_2 = $fields['udf_2'];
+            }
+            if(isset($fields['udf_3'])) {
+                $this->udf_3 = $fields['udf_3'];
+            }
+            if(isset($fields['udf_4'])) {
+                $this->udf_4 = $fields['udf_4'];
+            }
+            if(isset($fields['udf_5'])) {
+                $this->udf_5 = $fields['udf_5'];
             }
         }
 
