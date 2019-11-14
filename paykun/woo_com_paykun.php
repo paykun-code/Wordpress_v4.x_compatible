@@ -3,7 +3,7 @@
 * Plugin Name: PayKun Gateway (WooCommerce)
 * Plugin URI: https://github.com/paykun-code/Wordpress_v4.x_compatible
 * Description: PayKun payment integration for WooCommerce
-* Version: 1.6
+* Version: 1.7
 * Author: Paykun
 * Author URI: http://paykun.com/
 * Tags: PayKun, PayKun Payments, PayWithPayKun, PayKun WooCommerce, PayKun Plugin, PayKun Payment Gateway For WooCommerce
@@ -250,7 +250,8 @@ function woocommerce_paykun_payment_gateway_init() {
 
                         $resAmout = $response['data']['transaction']['order']['gross_amount'];
                         $this->addLog("amount matching responseAmount=".$resAmout." And  Order Amount = ".$order->order_total);
-                        if((intval($order->order_total)	== intval($resAmout))) {
+                        //if((intval($order->order_total)	== intval($resAmout))) 
+						{
 
                             $this->addLog("amount matched");
 
@@ -271,7 +272,7 @@ function woocommerce_paykun_payment_gateway_init() {
                                 }*/
                             }
                         }
-                        else {
+                        /*else {
                             // Order mismatch occur //
 
                             $this->msg['class'] = 'error';
@@ -280,7 +281,7 @@ function woocommerce_paykun_payment_gateway_init() {
                             $this->addLog($this->msg['message']. ' , With orderId = '.$order_id);
                             $order -> add_order_note('Failed');
                             $order -> add_order_note($this->msg['message']);
-                        }
+                        }*/
                     }
                     else { //Transaction failed
                         $resAmout = $response['data']['transaction']['order']['gross_amount'];
