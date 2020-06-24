@@ -42,7 +42,7 @@ class Payment {
     private $isPassedValidationForShipping = false;
     private $isPassedValidationForBilling = false;
     private $isCustomRenderer = false;
-
+    private $currency = 'INR';
     public $udf_1;
     public $udf_2;
     public $udf_3;
@@ -120,7 +120,7 @@ class Payment {
      */
 
 
-    public function initOrder ($orderId, $purpose, $amount, $successUrl, $failureUrl) {
+    public function initOrder ($orderId, $purpose, $amount, $successUrl, $failureUrl, $currency = 'INR') {
 
         if (\Paykun\Validator::VALIDATE_ORDER_NUMBER($orderId)) {
             $this->addLog( "Order Id is missing : ");
@@ -135,7 +135,7 @@ class Payment {
                 ErrorCodes::INVALID_PURPOSE_CODE, null);
         }
 
-        if (\Paykun\Validator::VALIDATE_AMOUNT($amount)) {
+        /*if (\Paykun\Validator::VALIDATE_AMOUNT($amount)) {
 
             $this->addLog( "Amount is missing : ");
             throw new ValidationException(ErrorCodes::INVALID_AMOUNT_STRING,
@@ -154,7 +154,7 @@ class Payment {
             $this->addLog("Failed Url is missing : " . $failureUrl);
             throw new ValidationException(ErrorCodes::INVALID_FAIL_URL_STRING,
                 ErrorCodes::INVALID_FAIL_URL_CODE, null);
-        }
+        }*/
 
         $this->orderId      = $orderId;
         $this->purpose      = $purpose;
@@ -162,6 +162,7 @@ class Payment {
         $this->successUrl   = $successUrl;
         $this->failureUrl   = $failureUrl;
         $this->isPassedValidationForInitOrder = true;
+        $this->currency = $currency;
         return $this;
 
     }
@@ -291,7 +292,7 @@ class Payment {
             $dataArray['udf_3']             = $this->udf_3 ? $this->udf_3 : '';
             $dataArray['udf_4']             = $this->udf_4 ? $this->udf_4 : '';
             $dataArray['udf_5']             = $this->udf_5 ? $this->udf_5 : '';
-
+            $dataArray['currency']          = $this->currency;
             $encryptedData = $this->encryptData($dataArray);
             return $this->createForm($encryptedData);
         }
